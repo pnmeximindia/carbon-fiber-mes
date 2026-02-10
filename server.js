@@ -13,7 +13,9 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // All APIs will start with /api
+app.use(express.static("public"));
 app.use("/api", routes);
+
 
 // Render assigns port dynamically
 const PORT = process.env.PORT || 3000;
