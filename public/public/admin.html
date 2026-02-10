@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MES Admin Dashboard</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #111;
+      color: #fff;
+      padding: 20px;
+    }
+    h2 {
+      color: #00ff00;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 40px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px;
+      font-size: 13px;
+    }
+    th {
+      background: #222;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Carbon Fiber MES — Admin</h1>
+
+<h2>Traceability</h2>
+<table id="traceTable"></table>
+
+<h2>Material Issue Log</h2>
+<table id="issueTable"></table>
+
+<h2>Raw Material</h2>
+<table id="rmTable"></table>
+
+<script>
+function buildTable(id, data) {
+  if (data.length === 0) {
+    document.getElementById(id).innerHTML = "<tr><td>No data</td></tr>";
+    return;
+  }
+
+  let html = "<tr>";
+  Object.keys(data[0]).forEach(k => html += `<th>${k}</th>`);
+  html += "</tr>";
+
+  data.forEach(row => {
+    html += "<tr>";
+    Object.values(row).forEach(v => html += `<td>${v}</td>`);
+    html += "</tr>";
+  });
+
+  document.getElementById(id).innerHTML = html;
+}
+
+fetch("/api/admin/traceability")
+  .then(r => r.json())
+  .then(d => buildTable("traceTable", d));
+
+fetch("/api/admin/material-issue")
+  .then(r => r.json())
+  .then(d => buildTable("issueTable", d));
+
+fetch("/api/admin/raw-material")
+  .then(r => r.json())
+  .then(d => buildTable("rmTable", d));
+</script>
+
+</body>
+</html>
