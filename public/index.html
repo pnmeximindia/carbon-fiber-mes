@@ -1,1 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Carbon Fiber MES – Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial;
+      background: #111;
+      color: #0f0;
+      text-align: center;
+      padding-top: 40px;
+    }
+    input {
+      font-size: 22px;
+      padding: 15px;
+      width: 90%;
+    }
+    .status {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>SCAN MATERIAL / QTY / ORDER</h2>
+
+<input id="scanInput" autofocus placeholder="Scan here..." />
+
+<div class="status" id="status">Waiting for scan...</div>
+
+<script>
+let data = {};
+
+document.getElementById("scanInput").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    const scan = this.value.trim();
+    this.value = "";
+
+    // Parse scan
+    if (scan.startsWith("RM|")) data.RM_ID = scan.split("|")[1];
+    if (scan.startsWith("QTY|")) data.Qty = parseFloat(scan.split("|")[1]);
+    if (scan.startsWith("PO|")) data.Production_Order = scan.split("|")[1];
+
+    document.getElementById("status").innerText = JSON.stringify(data);
+
+    // When all data present → issue material
+    if (data.RM_ID && data.Qty && data.Production_Order) {
+      fetch("/api/issue-material", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          RM_ID: data.RM_ID,
+          Qty: data.Qty,
+          Production_Order: data.Production_Order,
+          Operator: "OP-01"
+        })
+      })
+      .then(res => res.text())
+      .then(msg => {
+        document.getElementById("status").innerText = msg;
+        data = {}; // reset
+      })
+      .catch(err => {
+        document.getElementById("status").innerText = "ERROR";
+        data = {};
+      });
+    }
+  }
+});
+</script>
+
+</body>
+</html>
 
