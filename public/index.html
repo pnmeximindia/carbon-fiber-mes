@@ -6,8 +6,8 @@
   <style>
     body {
       font-family: Arial;
-      background: #111;
-      color: #0f0;
+      background: #000;
+      color: #00ff00;
       text-align: center;
       padding-top: 40px;
     }
@@ -34,19 +34,20 @@
 <script>
 let data = {};
 
+document.getElementById("scanInput").focus();
+
 document.getElementById("scanInput").addEventListener("keydown", function(e) {
   if (e.key === "Enter") {
     const scan = this.value.trim();
     this.value = "";
 
-    // Parse scan
     if (scan.startsWith("RM|")) data.RM_ID = scan.split("|")[1];
     if (scan.startsWith("QTY|")) data.Qty = parseFloat(scan.split("|")[1]);
     if (scan.startsWith("PO|")) data.Production_Order = scan.split("|")[1];
 
-    document.getElementById("status").innerText = JSON.stringify(data);
+    document.getElementById("status").innerText =
+      "Scanned: " + JSON.stringify(data);
 
-    // When all data present → issue material
     if (data.RM_ID && data.Qty && data.Production_Order) {
       fetch("/api/issue-material", {
         method: "POST",
@@ -58,12 +59,12 @@ document.getElementById("scanInput").addEventListener("keydown", function(e) {
           Operator: "OP-01"
         })
       })
-      .then(res => res.text())
+      .then(r => r.text())
       .then(msg => {
         document.getElementById("status").innerText = msg;
-        data = {}; // reset
+        data = {};
       })
-      .catch(err => {
+      .catch(() => {
         document.getElementById("status").innerText = "ERROR";
         data = {};
       });
@@ -74,4 +75,3 @@ document.getElementById("scanInput").addEventListener("keydown", function(e) {
 
 </body>
 </html>
-
